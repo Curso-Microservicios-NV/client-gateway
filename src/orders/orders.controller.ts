@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Inject, ParseUUIDPipe, Query
 import { CreateOrderDto, OrderPaginationDto, StatusDto } from './dto';
 import { NATS_SERVICE } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { catchError, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common';
 
 
@@ -12,27 +12,39 @@ export class OrdersController {
     @Inject(NATS_SERVICE) private readonly client: ClientProxy) { }
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.client.send('createOrder', createOrderDto)
-      .pipe(
-        catchError(err => { throw new RpcException(err) })
+  async create(@Body() createOrderDto: CreateOrderDto) {
+    try {
+      return await firstValueFrom(
+        this.client.send('createOrder', createOrderDto)
       );
+    }
+    catch (error) {
+      throw new RpcException(error);
+    }
   }
 
   @Get()
-  findAll(@Query() orderPaginationDto: OrderPaginationDto) {
-    return this.client.send('findAllOrders', orderPaginationDto)
-      .pipe(
-        catchError(err => { throw new RpcException(err) })
+  async findAll(@Query() orderPaginationDto: OrderPaginationDto) {
+    try {
+      return await firstValueFrom(
+        this.client.send('findAllOrders', orderPaginationDto)
       );
+    }
+    catch (error) {
+      throw new RpcException(error);
+    }
   }
 
   @Get('id/:id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.client.send('findOneOrder', { id })
-      .pipe(
-        catchError(err => { throw new RpcException(err) })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      return await firstValueFrom(
+        this.client.send('findOneOrder', { id })
       );
+    }
+    catch (error) {
+      throw new RpcException(error);
+    }
   }
 
   @Get(':status')
@@ -63,10 +75,10 @@ export class OrdersController {
   ) {
 
     try {
-      return this.client.send('changeOrderStatus', {
+      return await firstValueFrom(this.client.send('changeOrderStatus', {
         id,
         status: statusDto.status
-      });
+      }));
     }
     catch (error) {
       throw new RpcException(error);
