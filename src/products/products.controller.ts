@@ -27,20 +27,14 @@ export class ProductsController {
   findAllProducts(
     @Query() pagination: PaginationDto
   ) {
-    return this.client.send({ cmd: 'find_all_products' }, pagination);
+    return this.client.send({ cmd: 'find_all_products' }, pagination)
+      .pipe(
+        catchError(err => { throw new RpcException(err) })
+      );
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    // try {
-    //   const product = await firstValueFrom(
-    //     this.productsClient.send({ cmd: 'find_one_product' }, { id })
-    //   );
-    //   return product;
-    // }
-    // catch (error) {
-    //   throw new RpcException(error);
-    // }
     return this.client.send({ cmd: 'find_one_product' }, { id })
       .pipe(
         catchError(err => { throw new RpcException(err) })

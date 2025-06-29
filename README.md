@@ -17,3 +17,9 @@ correspondientes y devolver la respuesta al cliente.
 6. Levantar proyecto con `npm run start:dev`
 
 
+## Build de producción
+
+Ejecutar: 
+```
+docker build -f dockerfile.prod -t client-gateway .
+```
